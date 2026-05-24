@@ -1,0 +1,31 @@
+# ── Core ─────────────────────────────────────────────────────────
+fastapi==0.115.6
+uvicorn[standard]==0.32.1
+pydantic==2.10.3
+pydantic-settings==2.7.0
+python-dotenv==1.0.1
+httpx==0.28.1
+
+# ── Testing ───────────────────────────────────────────────────────
+pytest==8.3.4
+pytest-asyncio==0.24.0
+
+# ── Added per phase — uncomment when needed ───────────────────────
+# Phase 3 — LLM APIs
+# anthropic>=0.42.0
+# openai>=1.58.1
+
+# Phase 4 — Vector DB
+# qdrant-client>=1.12.1
+
+# Phase 5 — RAG
+# llama-index>=0.12.0
+# llama-index-vector-stores-qdrant>=0.4.0
+# cohere>=5.11.0
+
+# Phase 6 — Agents
+# langchain>=0.3.0
+# langchain-anthropic>=0.3.0
+
+# Phase 8 — Observability
+# langfuse>=2.0.0
