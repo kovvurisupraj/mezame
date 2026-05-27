@@ -1,13 +1,46 @@
-# Anime Tracker
+# Mezame
 
-AI-powered anime tracker with semantic search, mood recommendations, RAG chatbot, research agents, and persistent AI memory.
+An AI-powered anime tracker built as a structured 20-week learning project. The goal is to go from fundamentals to a production-ready full-stack AI application — covering RAG, agents, embeddings, memory systems, and observability — using anime as the domain.
 
-## Prerequisites
+## What it does (planned)
 
-- [Node.js 20+](https://nodejs.org/)
-- [Python 3.12+](https://python.org/)
-- [Docker Desktop](https://docker.com/products/docker-desktop/)
-- [GitHub CLI](https://cli.github.com/) (for repo management)
+| Feature | AI Technique |
+|---|---|
+| Semantic search across anime library | Embeddings + vector search (Qdrant) |
+| Mood-based recommendations | Embedding similarity |
+| RAG chatbot about anime lore | LlamaIndex + Qdrant knowledge base |
+| Research agents | LangChain ReAct agents with tool use |
+| Persistent AI memory | pgvector for long-term user memory |
+| LLM observability | Langfuse traces and cost tracking |
+
+## AI Architecture
+
+```
+apps/ai-service (FastAPI · Python 3.12)
+│
+├── LLM          Claude (Anthropic) — primary model for all text generation
+├── Embeddings   text-embedding-3-small (OpenAI) — vector representations
+├── RAG          LlamaIndex — indexing + retrieval pipeline (Phase 5)
+├── Agents       LangChain ReAct — tool-using agents (Phase 6)
+├── Memory       pgvector (PostgreSQL) — long-term user memory vectors
+│                Qdrant — RAG knowledge base (dedicated vector store)
+└── Observability Langfuse — LLM traces, latency, cost per call (Phase 8)
+```
+
+Two vector stores are used intentionally: **pgvector** co-locates user memory with relational user data (PostgreSQL), while **Qdrant** is a purpose-built store for the anime knowledge base with better performance at scale.
+
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| AI service | FastAPI (Python 3.12) |
+| Web app | Next.js 15 |
+| Database | PostgreSQL 16 + pgvector |
+| Vector store | Qdrant |
+| Cache / Queue | Redis + BullMQ |
+| Monorepo | Turborepo |
+| Infrastructure | Docker Compose |
+| CI | GitHub Actions |
 
 ## Quick Start
 
@@ -21,10 +54,10 @@ npm install
 
 ```bash
 cp .env.example .env.local
-# Open .env.local and fill in values
+# Fill in ANTHROPIC_API_KEY, OPENAI_API_KEY, and database credentials
 ```
 
-### 3. Start infrastructure (PostgreSQL, Redis, Qdrant)
+### 3. Start infrastructure
 
 ```bash
 docker compose -f infra/docker-compose.yml up postgres redis qdrant -d
@@ -36,10 +69,10 @@ docker compose -f infra/docker-compose.yml up postgres redis qdrant -d
 cd packages/db && npx prisma migrate dev
 ```
 
-### 5. Start the apps (two terminals)
+### 5. Start apps
 
 ```bash
-# Terminal 1 — Next.js web app
+# Terminal 1 — Next.js
 cd apps/web && npm run dev
 
 # Terminal 2 — AI service
@@ -48,62 +81,66 @@ pip install -r requirements.txt
 uvicorn main:app --reload
 ```
 
-**Or run everything in Docker:**
+Or run everything in Docker:
 
 ```bash
 docker compose -f infra/docker-compose.yml --profile full up
 ```
 
----
-
-## Development URLs
+## Dev URLs
 
 | Service | URL |
 |---|---|
 | Web app | http://localhost:3000 |
 | AI service | http://localhost:8000 |
 | AI service docs | http://localhost:8000/docs |
-| Langfuse (Phase 8) | http://localhost:3001 |
 | Qdrant dashboard | http://localhost:6333/dashboard |
+| Langfuse (Phase 8) | http://localhost:3001 |
 
 ## Common Commands
 
 ```bash
-# Run all linting
-npx turbo lint
+npx turbo lint        # lint all packages
+npx turbo typecheck   # TypeScript check all packages
+npx turbo test        # run all tests
 
-# Run all type checks
-npx turbo typecheck
+# Database (from packages/db)
+npx prisma migrate dev   # apply migrations
+npx prisma studio        # open DB GUI
 
-# Run all tests
-npx turbo test
-
-# Prisma commands (run from packages/db)
-npx prisma migrate dev      # create + apply migration
-npx prisma studio           # open DB GUI
-npx prisma generate         # regenerate client after schema change
-
-# Python AI service tests
+# AI service tests
 cd apps/ai-service && python -m pytest tests/ -v
 ```
 
-## Documentation
+## Monorepo Structure
 
-- [Project Documentation](docs/PROJECT.md) — architecture, schema, API design, CI/CD
-- [Learning Roadmap](docs/LEARNING_ROADMAP.md) — phase-by-phase learning guide with resources
+```
+apps/
+├── web/              # Next.js 15 frontend
+└── ai-service/       # FastAPI AI microservice (main focus)
+packages/
+├── db/               # Prisma schema + migrations (shared)
+├── ui/               # Shared React components
+└── config/           # Shared ESLint / TypeScript / Tailwind config
+infra/
+└── docker-compose.yml
+docs/
+├── PROJECT.md         # Architecture, schema, API design, CI/CD
+└── LEARNING_ROADMAP.md
+```
 
 ## Roadmap
 
 | Phase | Focus | Status |
 |---|---|---|
-| 0 | Foundation — Monorepo, Docker, CI | 🔨 Active |
-| 1 | Core App — Auth, Library, AniList | ⏳ |
-| 2 | Countdowns & Real-time | ⏳ |
-| 3 | Prompt Engineering | ⏳ |
-| 4 | Embeddings & Semantic Search | ⏳ |
-| 5 | RAG Pipeline | ⏳ |
-| 6 | Agents & Tool Use | ⏳ |
-| 7 | Memory System | ⏳ |
-| 8 | Evals & Observability | ⏳ |
+| 0 | Foundation — monorepo, Docker, CI | 🔨 In progress |
+| 1 | Core app — auth, anime library, AniList API | ⏳ |
+| 2 | Countdowns and real-time updates | ⏳ |
+| 3 | Prompt engineering | ⏳ |
+| 4 | Embeddings and semantic search | ⏳ |
+| 5 | RAG pipeline | ⏳ |
+| 6 | Agents and tool use | ⏳ |
+| 7 | Memory system | ⏳ |
+| 8 | Evals and observability | ⏳ |
 | 9 | Multimodal | ⏳ |
-| 10 | Production Hardening | ⏳ |
+| 10 | Production hardening | ⏳ |
